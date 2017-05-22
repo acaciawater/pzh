@@ -1,0 +1,7 @@
+/__init__.pyc
+/secrets.pyc
+/settings.pyc
+/urls.pyc
+/views.pyc
+/wsgi.pyc
+/secrets.py
