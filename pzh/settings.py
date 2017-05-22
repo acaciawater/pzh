@@ -36,6 +36,7 @@ INSTALLED_APPS = (
     'django.contrib.gis',
     'bootstrap3',
     'acacia',
+    'acacia.ahn',
     'acacia.data',
     'acacia.meetnet',
     'acacia.data.knmi',
