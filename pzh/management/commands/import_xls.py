@@ -76,14 +76,16 @@ class Command(BaseCommand):
             ref = asfloat(row['Bovenkant [m NAP]'])
             dia = asfloat(row['Diameter [mm]'])
             
-            print '{}.{:03d}'.format(put,nr)
+            #print '{}.{:03d}'.format(put,nr)
              
             screen, created = well.screen_set.get_or_create(nr=nr,defaults = {
                 'refpnt': ref,
                 'top': top,
                 'bottom': bot,
                 'diameter': dia})
-            screen.mloc, created = well.ploc.meetlocatie_set.get_or_create(name=unicode(screen),defaults = {
+            if created:
+                print unicode(screen)
+            screen.mloc, _ = well.ploc.meetlocatie_set.get_or_create(name=unicode(screen),defaults = {
                 'location': well.ploc.location})
             if created:
                 screen.save()
