@@ -38,13 +38,13 @@ class Command(BaseCommand):
         for index,row in df.iterrows():
             x = asfloat(row['X-Coordinaat'])
             y = asfloat(row['Y-Coordinaat'])
-            loc = Point(x,y,srid=RDNEW)
             nitg = row['NITG-code']
             name = row['OLGA nummer']
             #print '{}="{}"'.format(nitg,name)
             if str(name)=='nan' or name is None or name=='': 
                 name = nitg 
             try:
+                loc = Point(x,y,srid=RDNEW)
                 ploc, created = prj.projectlocatie_set.get_or_create(name=name,defaults={'location':loc})
                 well, created = ploc.well_set.get_or_create(name=name,nitg=nitg,defaults={
                     'network': net,
@@ -55,6 +55,12 @@ class Command(BaseCommand):
                     })
                 if created:
                     print unicode(well) 
+                else:
+                    well.maaiveld = float(row['Mv-hoogte'])
+                    well.network = net
+                    well.location = loc
+                    well.description = row['Locatie']
+                    well.save()
             except Exception as e:
                 print nitg,e
 
@@ -71,13 +77,11 @@ class Command(BaseCommand):
                 continue
             
             nr = row['Filternummer']
-            top = asfloat(row['Filter van'])
-            bot = asfloat(row['Filter tot'])
+            top = asfloat(row['Filter van tov bkpb'])
+            bot = asfloat(row['Filter tot tov bkpb'])
             ref = asfloat(row['Bovenkant [m NAP]'])
             dia = asfloat(row['Diameter [mm]'])
             
-            #print '{}.{:03d}'.format(put,nr)
-             
             screen, created = well.screen_set.get_or_create(nr=nr,defaults = {
                 'refpnt': ref,
                 'top': top,
@@ -85,10 +89,14 @@ class Command(BaseCommand):
                 'diameter': dia})
             if created:
                 print unicode(screen)
+            else:
+                screen.refpnt = ref
+                screen.top = top
+                screen.bottom = bot
+                screen.diameter = dia
             screen.mloc, _ = well.ploc.meetlocatie_set.get_or_create(name=unicode(screen),defaults = {
                 'location': well.ploc.location})
-            if created:
-                screen.save()
+            screen.save()
                     
     def handle(self, *args, **options):
         filename = options['filename']
