@@ -21,6 +21,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['.acaciadata.com','localhost']
 
+SITE_ID = 1
 
 # Application definition
 
