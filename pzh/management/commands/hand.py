@@ -4,29 +4,25 @@ Created on Dec 6, 2014
 @author: theo
 '''
 import csv, datetime
-from optparse import make_option
 from django.core.management.base import BaseCommand
-from acacia.data.models import ProjectLocatie, MeetLocatie, Series, ManualSeries
+from acacia.data.models import MeetLocatie, ManualSeries
 from acacia.meetnet.models import Well,Screen
 from django.db.models import Q
 from django.contrib.auth.models import User
 import pytz
-from tz import NL as WinterTijd
 
 class Command(BaseCommand):
     args = ''
     help = 'Importeer handpeilingen'
-    option_list = BaseCommand.option_list + (
-            make_option('--file',
-                action='store',
-                type = 'string',
-                dest = 'fname',
-                default = None),
-        )
+
+    def add_arguments(self, parser):
+        parser.add_argument(dest='fname',
+                help='Name of csv file with water level readings')
+        
         
     def handle(self, *args, **options):
         fname = options.get('fname')
-        CET=pytz.timezone('Europe/Amsterdam')
+        TZ=pytz.timezone('CET') # handpeilingen worden aangeleved in CET
         user=User.objects.get(username='theo')
         if fname:
             with open(fname,'r') as f:
@@ -37,10 +33,7 @@ class Command(BaseCommand):
                         well = Well.objects.get(Q(nitg=NITG) | Q(name=NITG))
                         filt = int(row['Filter'])
                         screen = well.screen_set.get(nr=filt)
-                        ploc = ProjectLocatie.objects.get(name__in=[well.nitg, well.name])
-                        name1= '%s/%03d' % (well.name, filt)
-                        name2= '%s/%03d' % (well.nitg, filt)
-                        mloc = ploc.meetlocatie_set.get(name__in=[name1,name2])
+                        mloc = screen.mloc
                         datumtijd = '%s %s' % (row['Datum'], row['Tijd'])
                         depth = row['Meting']
                         if depth:
@@ -51,14 +44,10 @@ class Command(BaseCommand):
                             print 'Reference point for screen %s not available' % screen
                             continue
                         nap = screen.refpnt - depth
-                        date = datetime.datetime.strptime(datumtijd,'%d/%m/%Y %H:%M')
-                        date = CET.localize(date)
-                        date = date.astimezone(WinterTijd)
+                        date = datetime.datetime.strptime(datumtijd,'%d/%m/%Y %H:%M:%S')
+                        date = TZ.localize(date)
                         series_name = '%s HAND' % mloc.name
-                        try:
-                            series = mloc.series_set.get(name=series_name)
-                        except:
-                            series = ManualSeries.create(name=series_name, mlocatie=mloc, description='Handpeiling', unit='m NAP', type='scatter', user=user)
+                        series, created = ManualSeries.objects.get_or_create(name=series_name, mlocatie=mloc, defaults = {'description': 'Handpeiling', 'unit': 'm NAP', 'type': 'scatter', 'user':user})
                         pt, created = series.datapoints.get_or_create(date=date,defaults={'value': nap})
                         if not created:
                             pt.value = nap
