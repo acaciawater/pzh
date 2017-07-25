@@ -20,8 +20,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         print 'name, nitg, filter, code, refpnt, top, bottom, logger, refpnt, depth, baro, file, begin, end, days, points'
         for w in Well.objects.all():
+            baro = w.meteo.baro if hasattr(w,'meteo') else None
             for s in w.screen_set.all():
                 for lp in s.loggerpos_set.all():
                     for mf in lp.monfile_set.all():
-                        print ','.join([str(x) for x in [w.name, w.nitg, s.nr, unicode(s), s.refpnt, s.top, s.bottom, lp.logger, lp.refpnt, lp.depth, q(lp.baro), q(mf.name), d(mf.start_date), d(mf.end_date), (mf.end_date-mf.start_date).days, mf.num_points]])
-                    
+                        print ','.join([str(x) for x in [w.name, w.nitg, s.nr, unicode(s), s.refpnt, s.top, s.bottom, lp.logger, lp.refpnt, lp.depth, q(baro), q(mf.name), d(mf.start_date), d(mf.end_date), (mf.end_date-mf.start_date).days, mf.num_points]])

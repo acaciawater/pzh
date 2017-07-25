@@ -8,43 +8,18 @@ from acacia.data.models import Project, Parameter
 
 from acacia.data.knmi.models import Station
 from acacia.data.models import Datasource, Generator
-from acacia.meetnet.models import Well
+from acacia.meetnet.models import Well, MeteoData
 from django.contrib.auth.models import User
-
-import math
-from openpyxl.chart import series
-def distance(obj, pnt):
-    dx = obj.location.x - pnt.x
-    dy = obj.location.y - pnt.y
-    return math.sqrt(dx*dx+dy*dy)
-
-def closest_object(query,target):
-    closest = None
-    dist = 1e99
-    for obj in query:
-        d = distance(obj, target)
-        if d < dist:
-            closest = obj
-            dist = d
-    return closest
-
-def sort_objects(query,target):
-    objs = []
-    for obj in query:
-        obj.distance = distance(obj, target)
-        objs.append(obj)
-    return sorted(objs, key=lambda x: x.distance)
 
 def luchtdruk(loc,user):
     ''' Luchtdruk stations toevoegen aan project '''
     
     project = loc.project
     p = loc.location
-    generator = Generator.objects.get(name='KNMI uurwaarden')
+    generator = Generator.objects.get(classname__icontains='KNMI.uur')
     me = User.objects.get(username='theo')
 
-    stns = sort_objects(Station.objects.all(),p)
-    stn = stns[0] # closest
+    stn = Station.closest(p)
     name='Meteostation %s ' % stn.naam
     ploc, created = project.projectlocatie_set.get_or_create(name=name,defaults={'location':stn.location})
     mloc, created = ploc.meetlocatie_set.get_or_create(name=name,defaults={'location':stn.location})
@@ -77,15 +52,11 @@ def luchtdruk(loc,user):
     # update logger installations for all screens at current location
     try:
         for w in loc.well_set.all():
-            if w.baro != series:
-                w.baro = series
+            if not hasattr(w,'meteo'):
+                MeteoData.objects.create(well=w,baro=series)
+            else:
+                w.meteo.baro = series
                 w.save()
-            for s in w.screen_set.all():
-                for logpos in s.loggerpos_set.all():
-                    if logpos.baro != series:
-                        logpos.baro = series
-                        logpos.save()
-                        print logpos, logpos.start_date, 'updated'
     except Well.DoesNotExist:
         print 'Well not found:', loc.name
         pass
