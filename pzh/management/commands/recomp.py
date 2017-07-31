@@ -44,9 +44,9 @@ class Command(BaseCommand):
                 print 'Screen', unicode(screen)
                 series, created = Series.objects.get_or_create(name=name,user=user)
                 recomp(screen, series)
-                data = chart_for_well(w,start,stop)
-                filename = os.path.join(folder,w.nitg + '.png')
-                print filename
-                with open(filename,'wb') as png:
-                    png.write(data)
+            data = chart_for_well(w,start,stop)
+            filename = os.path.join(folder,w.nitg + '.png')
+            print filename
+            with open(filename,'wb') as png:
+                png.write(data)
             
