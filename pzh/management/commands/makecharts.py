@@ -9,6 +9,7 @@ from acacia.meetnet.util import chart_for_well
 from datetime import datetime
 import os
 import pytz
+from acacia.data.util import slugify
 
 class Command(BaseCommand):
     help = 'maak grafiekjes'
@@ -22,13 +23,13 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         folder = options.get('dest')
         tz = pytz.timezone('CET')
-        start=datetime(2013,1,1,tzinfo=tz)
-        stop=datetime(2016,12,31,tzinfo=tz)
+        #start=datetime(2013,1,1,tzinfo=tz)
+        #stop=datetime(2016,12,31,tzinfo=tz)
         if not os.path.exists(folder):
             os.makedirs(folder)
         for w in Well.objects.all():
-            data = chart_for_well(w,start,stop)
-            filename = os.path.join(folder,w.nitg + '.png')
+            data = chart_for_well(w)
+            filename = os.path.join(folder,slugify(unicode(w)) + '.png')
             print filename
             with open(filename,'wb') as png:
                 png.write(data)
