@@ -5,7 +5,7 @@ Created on Dec 6, 2014
 '''
 from django.core.management.base import BaseCommand
 from acacia.meetnet.models import Well
-from acacia.meetnet.util import chart_for_well
+from acacia.meetnet.util import chart_for_well, chart_for_screen
 from datetime import datetime
 import os
 import pytz
@@ -33,4 +33,9 @@ class Command(BaseCommand):
             print filename
             with open(filename,'wb') as png:
                 png.write(data)
-            
+            for s in w.screen_set.all():
+                data = chart_for_screen(s)
+                filename = os.path.join(folder,slugify(unicode(s)) + '.png')
+                print filename
+                with open(filename,'wb') as png:
+                    png.write(data)
