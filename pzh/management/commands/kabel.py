@@ -12,7 +12,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 def extend():
     """ 
-    kabellengte info verlengen  
+    kabellengte info verlengen naar toekomst  
     """
     for screen in Screen.objects.all():
         try:
@@ -23,9 +23,9 @@ def extend():
             for lp in screen.loggerpos_set.order_by('start_date'):
                 if not lp.depth:
                     print 'Extend', lp
-                    lp.depth = prev
+                    lp.depth = prev.depth
                     lp.save()
-                prev = lp.depth
+                prev = lp
     
 class Command(BaseCommand):
     args = ''
