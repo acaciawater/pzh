@@ -31,11 +31,10 @@ class Command(BaseCommand):
     args = ''
     help = 'Importeer kabellengtes'
     option_list = BaseCommand.option_list + (
-            make_option('--file',
+            make_option('-f','--file',
                 action='store',
                 type = 'string',
-                dest = 'fname',
-                default = '/media/sf_C_DRIVE/Users/theo/Documents/projdirs/Zuid-Holland/validatie20132016/data/Kabellengten1.csv'),
+                dest = 'fname'),
         )
         
     def handle(self, *args, **options):
@@ -60,16 +59,14 @@ class Command(BaseCommand):
                         date = CET.localize(date)
                         date = date.date()
                         found = False
-                        may2013 = datetime.date(2013,5,1)
                         for lp in screen.loggerpos_set.all():
                             start = lp.start_date.date()
                             end = lp.end_date.date()
-                            #if (abs(start - date).days < 2) or (date < may2013 and start < may2013):
-                            if (date >= start and date <= end):  
+                            if (abs(start - date).days < 2):
                                 found = True
-                                print NITG, filt, datumtijd, depth, lp.logger, start
+                                print NITG, filt, datumtijd, depth, '=>', lp.logger, start, '-', end, lp.depth,
                                 lp.depth = depth
-                                lp.save()
+                                lp.save(update_fields=('depth',))
                         if not found:
                             print 'NOT FOUND:', NITG, filt,datumtijd, depth
                     except Well.DoesNotExist:
