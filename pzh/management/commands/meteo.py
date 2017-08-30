@@ -56,7 +56,8 @@ def luchtdruk(loc,user):
                 MeteoData.objects.create(well=w,baro=series)
             else:
                 w.meteo.baro = series
-                w.save()
+                w.meteo.save()
+            w.save()
     except Well.DoesNotExist:
         print 'Well not found:', loc.name
         pass
