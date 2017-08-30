@@ -22,9 +22,9 @@ def extend():
         if prev:
             for lp in screen.loggerpos_set.order_by('start_date'):
                 if not lp.depth:
-                    print 'Extend', lp
                     lp.depth = prev.depth
                     lp.save()
+                    print 'Extended:', unicode(lp), lp.start_date.date(), '-', lp.end_date.date(), lp.depth
                 prev = lp
     
 class Command(BaseCommand):
@@ -59,14 +59,17 @@ class Command(BaseCommand):
                         date = CET.localize(date)
                         date = date.date()
                         found = False
+                        may2013 = datetime.date(2013,5,1)
                         for lp in screen.loggerpos_set.all():
                             start = lp.start_date.date()
                             end = lp.end_date.date()
-                            if (abs(start - date).days < 2):
+                            if (abs(start - date).days < 4) or (date < may2013 and start < may2013): 
                                 found = True
-                                print NITG, filt, datumtijd, depth, '=>', lp.logger, start, '-', end, lp.depth,
-                                lp.depth = depth
-                                lp.save(update_fields=('depth',))
+                                if lp.depth != depth:
+                                    print NITG, filt, datumtijd, depth, '=>', lp.logger, start, '-', end, lp.depth
+                                    lp.depth = depth
+                                    lp.save(update_fields=('depth',))
+                                break
                         if not found:
                             print 'NOT FOUND:', NITG, filt,datumtijd, depth
                     except Well.DoesNotExist:
