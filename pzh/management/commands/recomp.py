@@ -42,7 +42,7 @@ class Command(BaseCommand):
             for screen in w.screen_set.all():
                 name = '%s COMP' % unicode(screen)
                 print 'Screen', unicode(screen)
-                series, created = Series.objects.get_or_create(name=name,user=user)
+                series, created = Series.objects.get_or_create(name=name,defaults={'mlocatie':screen.mloc,'user':user})
                 recomp(screen, series)
             data = chart_for_well(w,start,stop)
             filename = os.path.join(folder,w.nitg + '.png')
