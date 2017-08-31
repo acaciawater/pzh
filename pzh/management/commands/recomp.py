@@ -6,11 +6,12 @@ Created on Jul 31, 2017
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User 
 from acacia.meetnet.models import Well
-from acacia.meetnet.util import chart_for_well, recomp
+from acacia.meetnet.util import chart_for_well, recomp, make_chart
 from datetime import datetime
 import os
 import pytz
 from acacia.data.models import Series
+from acacia.data.util import slugify
 
 class Command(BaseCommand):
     help = 'timeseries en grafiekjes op nieuw aanmaken'
@@ -25,7 +26,14 @@ class Command(BaseCommand):
                 dest = 'dest',
                 default = '.',
                 help = 'destination folder for charts')
-                        
+
+    def save_chart(self, obj, folder):
+        chart = make_chart(obj)
+        filename = os.path.join(folder,slugify(unicode(obj)) + '.png')
+        print filename
+        with open(filename,'wb') as png:
+            png.write(chart)
+                                
     def handle(self, *args, **options):
         pk = options.get('pk')
         folder = options.get('dest')
@@ -44,9 +52,6 @@ class Command(BaseCommand):
                 print 'Screen', unicode(screen)
                 series, created = Series.objects.get_or_create(name=name,defaults={'mlocatie':screen.mloc,'user':user})
                 recomp(screen, series)
-            data = chart_for_well(w,start,stop)
-            filename = os.path.join(folder,w.nitg + '.png')
-            print filename
-            with open(filename,'wb') as png:
-                png.write(data)
+                self.save_chart(screen,folder)
+            self.save_chart(w,folder)
             
