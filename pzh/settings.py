@@ -182,27 +182,27 @@ LOGGING = {
     'loggers': {
         'django.request': {
             'handlers': ['django'],
-            'level': 'DEBUG',
+            'level': 'WARNING',
             'propagate': True,
         },
         'acacia': {
             'handlers': ['file',],
-            'level': 'DEBUG',
+            'level': 'WARNING',
             'propagate': True,
         },
         'pzh': {
             'handlers': ['file',],
-            'level': 'DEBUG',
+            'level': 'WARNING',
             'propagate': True,
         },
         'upload': {
             'handlers': ['upload',],
-            'level': 'DEBUG',
+            'level': 'WARNING',
             'propagate': True,
         },
         'update' : {
             'handlers': ['update', ],
-            'level': 'DEBUG',
+            'level': 'WARNING',
             'propagate': True,
         },
     },
