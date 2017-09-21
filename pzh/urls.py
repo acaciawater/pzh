@@ -24,6 +24,7 @@ urlpatterns = [
     url(r'^grappelli/', include('grappelli.urls')),
     url(r'^data/', include('acacia.data.urls',namespace='acacia')),
     url(r'^net/', include('acacia.meetnet.urls',namespace='meetnet')),
+    url(r'^val/', include('acacia.validation.urls',namespace='validation')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^accounts/', include('registration.backends.default.urls')),    
 ]
