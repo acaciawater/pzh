@@ -18,9 +18,11 @@ from django.contrib import admin
 from django.conf.urls.static import static
 from django.conf import settings
 from views import HomeView
+from pzh.views import MaintenanceView
 
 urlpatterns = [
     url(r'^$', HomeView.as_view(), name='home'),
+    url(r'^maintenance/(?P<pk>\d+)$', MaintenanceView.as_view(), name='maintenance'),
     url(r'^grappelli/', include('grappelli.urls')),
     url(r'^data/', include('acacia.data.urls',namespace='acacia')),
     url(r'^net/', include('acacia.meetnet.urls',namespace='meetnet')),

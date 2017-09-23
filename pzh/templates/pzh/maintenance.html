@@ -1,0 +1,65 @@
+{% extends 'bootbase.html' %}
+{% load staticfiles %}
+{% load l10n %}
+{% block title %}Onderhound {{object.network.name}} {% endblock title %}
+{% block admin_url %}meetnet{% endblock admin_url %}
+{% block extrastyle %}
+{% endblock %}
+{% block brandname %}{% endblock %}
+{% block breadcrumbs %}
+{% if nav.prev %}
+<li><a href="{%url 'maintenance' nav.prev.id %}" title="Toon details van {{nav.prev|title}}">&lt;&nbsp;{{nav.prev|title}}</a></li>
+{% endif %}
+{% if nav.next %}
+<li><a href="{%url 'maintenance' nav.next.id %}" title="Toon details van {{nav.next|title}}">{{nav.next|title}}&nbsp;&gt;</a></li>
+{% endif %}
+{% endblock %}{% block script %}
+{% endblock %}
+{% block content %}
+<div class = "container-fluid">
+<h3><a href="{% url 'admin:meetnet_well_change' object.id %}">Put {{object}}</a></h3>
+{% for screen in object.screen_set.all %}
+<div class = "row">
+<div class = "col col-lg-1">
+<h4><a href = "{% url 'admin:meetnet_screen_change' screen.id %}">Filter {{screen.nr}}</a></h4>
+</div>
+</div>
+<div class="row">
+<div class = "col col-lg-1">
+Logger
+</div>
+<div class = "col col-lg-1">
+Aantal
+</div>
+<div class = "col col-lg-1">
+Start
+</div>
+<div class = "col col-lg-1">
+Stop
+</div>
+</div>
+{% for logpos in screen.loggerpos_set.all %}
+{% with logpos.stats as stats %}
+<div class="row">
+<div class = "col col-lg-1">
+<a href="{% url 'admin:meetnet_loggerpos_change' logpos.id %}">{{logpos.logger}}</a>
+</div>
+<div class = "col col-lg-1">
+{{stats.count}}
+</div>
+<div class = "col col-lg-1">
+{{logpos.start_date|date:"d-M-Y H:i"}}
+</div>
+<div class = "col col-lg-1">
+{{logpos.end_date|date:"d-M-Y H:i"}}
+</div>
+</div>
+{% endwith %}
+{% empty %}
+No datalogers installed
+{% endfor %}
+{% empty %}
+No screens defined
+{% endfor %}
+</div>
+{% endblock content %}
