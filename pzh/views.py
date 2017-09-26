@@ -21,12 +21,12 @@ class HomeView(NetworkView):
 class NavMixin(object):
 
     def nav(self,obj):
-        next = obj.__class__.objects.filter(pk__gt=obj.pk)
-        next = next.first() if next else None
-        prev = obj.__class__.objects.filter(pk__lt=obj.pk)
-        prev = prev.last() if prev else None
-        return {'next': next, 'prev': prev}
-    
+        nxt = obj.__class__.objects.filter(pk__gt=obj.pk)
+        nxt = nxt.first() if nxt else None
+        prv = obj.__class__.objects.filter(pk__lt=obj.pk)
+        prv = prv.last() if prv else None
+        return {'next': nxt, 'prev': prv}
+
 class MaintenanceView(NavMixin, DetailView):
     model=Well
     template_name = 'pzh/maintenance.html'
