@@ -6,7 +6,7 @@ Created on Jul 31, 2017
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User 
 from acacia.meetnet.models import Well
-from acacia.meetnet.util import chart_for_well, recomp, make_chart
+from acacia.meetnet.util import recomp, make_chart
 from datetime import datetime
 import os
 import pytz
