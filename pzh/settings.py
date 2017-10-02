@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-import os
+import os, sys
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.sys.path.append('/home/theo/texelmeet/acaciadata')
@@ -146,6 +146,10 @@ LOGGING = {
             'backupCount': 0,
             'formatter': 'default'
         },
+        'console': {
+            'class': 'logging.StreamHandler',
+            'stream': sys.stdout,
+        },
         'update': {
             'level': 'DEBUG',
             'class': 'logging.handlers.TimedRotatingFileHandler',
@@ -176,6 +180,9 @@ LOGGING = {
         'default': {
             'format': '%(levelname)s %(asctime)s %(name)s: %(message)s'
         },
+        'console': {
+            'format': '%(levelname)s %(message)s'
+        },
         'update' : {
             'format': '%(levelname)s %(asctime)s %(datasource)s: %(message)s'
         }
@@ -192,8 +199,13 @@ LOGGING = {
             'propagate': True,
         },
         'pzh': {
-            'handlers': ['file',],
+            'handlers': ['file'],
             'level': 'WARNING',
+            'propagate': True,
+        },
+        'pzh.management': {
+            'handlers': ['console',],
+            'level': 'INFO',
             'propagate': True,
         },
         'upload': {
