@@ -38,8 +38,6 @@ class Command(BaseCommand):
         pk = options.get('pk')
         folder = options.get('dest')
         tz = pytz.timezone('CET')
-        start=datetime(2013,1,1,tzinfo=tz)
-        stop=datetime(2016,12,31,tzinfo=tz)
         user=User.objects.get(username='theo')
         if pk:
             wells = Well.objects.filter(pk=pk)
@@ -52,6 +50,7 @@ class Command(BaseCommand):
                 print 'Screen', unicode(screen)
                 series, created = Series.objects.get_or_create(name=name,defaults={'mlocatie':screen.mloc,'user':user})
                 recomp(screen, series)
+                series.validate(reset=True,accept=True,user=user)
                 self.save_chart(screen,folder)
             self.save_chart(w,folder)
             
