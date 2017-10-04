@@ -43,6 +43,7 @@ class Command(BaseCommand):
                 
                 for screen in well.screen_set.all():
                     logger.info(unicode(screen))
+                    hasdata = False
                     for ds in screen.mloc.datasource_set.all():
                         for sf in ds.sourcefiles.order_by('start'):
                             fname = os.path.basename(sf.file.name)
@@ -65,6 +66,7 @@ class Command(BaseCommand):
                                 logger.warning('File {} skipped: no air pressure data available after {}'.format(fname,baroend))
                                 continue
 
+                            hasdata = True
                             if datastart < barostart:
                                 logger.warning('File {} only partly checked: no air pressure data available before {}'.format(fname,barostart))
 
@@ -86,4 +88,7 @@ class Command(BaseCommand):
                             txt = '{},{},{},{},{},{},{},{}'.format(screen,fname,sf.start,sf.stop,sf.rows,dry0,dry2,dry5)
                             logger.debug(txt)
                             csv.write('{}\n'.format(txt))
+                    if not hasdata:
+                        # report screen without data
+                        csv.write('{},{},{},{},{},{},{},{}\n'.format(screen,'','','',0,-999,-999,-999))
             
