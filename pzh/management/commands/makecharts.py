@@ -6,9 +6,7 @@ Created on Dec 6, 2014
 from django.core.management.base import BaseCommand
 from acacia.meetnet.models import Well
 from acacia.meetnet.util import chart_for_well, chart_for_screen
-from datetime import datetime
 import os
-import pytz
 from acacia.data.util import slugify
 
 class Command(BaseCommand):
@@ -19,10 +17,17 @@ class Command(BaseCommand):
                 dest = 'dest',
                 default = '.',
                 help = 'destination folder')
+
+        parser.add_argument('-s', '--noscreen',
+                action='store_true',
+                dest = 'noscreen',
+                default = False,
+                help = 'ignore screens')
                         
     def handle(self, *args, **options):
         folder = options.get('dest')
-        tz = pytz.timezone('CET')
+        noscreen = options.get('noscreen')
+        #tz = pytz.timezone('CET')
         #start=datetime(2013,1,1,tzinfo=tz)
         #stop=datetime(2016,12,31,tzinfo=tz)
         if not os.path.exists(folder):
@@ -33,9 +38,10 @@ class Command(BaseCommand):
             print filename
             with open(filename,'wb') as png:
                 png.write(data)
-            for s in w.screen_set.all():
-                data = chart_for_screen(s)
-                filename = os.path.join(folder,slugify(unicode(s)) + '.png')
-                print filename
-                with open(filename,'wb') as png:
-                    png.write(data)
+            if not noscreen:
+                for s in w.screen_set.all():
+                    data = chart_for_screen(s)
+                    filename = os.path.join(folder,slugify(unicode(s)) + '.png')
+                    print filename
+                    with open(filename,'wb') as png:
+                        png.write(data)
