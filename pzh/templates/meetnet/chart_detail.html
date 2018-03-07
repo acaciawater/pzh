@@ -1,0 +1,105 @@
+{% extends 'highchart.html' %}
+{% load i18n %}
+{% block title %}{% trans 'chart' %} {{object.name}}{% endblock title %}
+{% block breadcrumbs %}
+<ol class="breadcrumb">
+	<li><a href="/">{% trans 'Home' %}</a></li>
+</ol>
+{% endblock breadcrumbs %} 
+{% block brandname %}
+<div class="navbar-brand">
+	<a href="{{object.network.homepage}}"><img
+		src="/media/{{object.network.logo}}" /></a>
+	{% trans "Monitoring network" %} {{object.network.name}}
+</div>
+{% endblock %} 
+{% block extrastyle %}
+<style>
+.navbar-brand a img {
+	margin-top: -7px;
+	max-height: 32px;
+}
+</style>
+{% endblock %}
+{% block navbar-right %}
+<!--  <li class="dropdown"> -->
+<!--    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Referentie<b class="caret"></b></a> -->
+<!--    <ul class="dropdown-menu"> -->
+<!--      <li><a href="#"><i class="fa fa-check"></i>NAP</a></li> -->
+<!--      <li><a href="#">Maaiveld</a></li> -->
+<!--      <li><a href="#">Bovenkant buis</a></li> -->
+<!--      <li><a href="#">Sensor</a></li> -->
+<!--    </ul> -->
+<!--  </li> -->
+{% endblock navbar-right %}
+{% block script %}
+{{ block.super }}
+<script>
+function fetchSeries(name,id) {
+	var html = '<div id="screen'+id+'">Laden filter ' + name + '&hellip;</div>';
+	$("#container").append(html);
+    $.getJSON('/net/data/'+id+'?{{request.GET.urlencode}}', function (data) {
+	  	var chart = $('#container').highcharts();
+	  	$.each(data,function(key,values) {
+	  		if (values) {
+	  			if (values.length > 0) {
+			  		var series = chart.get(key);
+			  		if (series) {
+						series.setData(values);
+			  		}
+	  			}
+	  		}
+	  	})
+    })
+    .done(function(key,values) {
+    	if (values.length == 0)
+			$("#screen"+id).append('Geen gegevens');
+    	else
+			$("#screen"+id).append('Klaar');
+    })
+    .fail(function() {
+		$("#screen"+id).append('Geen gegevens');
+    })
+    .always(function(){
+		setTimeout(function(){$("#screen"+id).remove();},2000);
+    });
+}
+
+function fetchAll() {
+{% for s in object.screen_set.all %}
+	fetchSeries("{{s}}","{{s.pk}}");
+{% endfor %}
+}
+$(function () {
+  var opt = {{options|safe}};
+  opt.chart.events.load = fetchAll;
+  opt.exporting = {
+	        buttons: {
+	            contextButton: {
+	                menuItems: [{
+	                    text: 'Download figuur',
+	                    onclick: function () {
+	                        this.exportChart();
+	                    }
+	                }, {
+	                    text: 'Download tijdreeks',
+	                    onclick: function () {
+	            			window.location="{% url 'meetnet:download-well' object.id %}";
+	                    },
+	                    separator: false
+	                }]
+	            }
+	        }
+	  };
+  chart = $('#container').highcharts(opt);
+});
+</script>
+{% endblock %}
+
+{% block content %}
+{{ block.super }}
+<br/>
+<div class="text-center">
+<a href="{% url 'meetnet:download-well' object.id %}" class="btn btn-primary active" data-toggle="tooltip" title="Tijdreeksen van deze put downloaden als csv bestand" id="download">Downloaden</a>
+</div>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block navbar-auth %}
+<ul class="nav navbar-nav navbar-right">
+  {% block navbar-right %}
+  {% endblock navbar-right %}
+  {% if user.is_authenticated %}
+   <li class="dropdown">
+     <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-lg fa-cog blue" aria-hidden="true"></i></a>
+     <ul class="dropdown-menu">
+     {% if user.is_staff %}
+       <li><a href="{% block admin_url %}/admin/meetnet{% endblock admin_url %}">{% trans "Admin page" %}</a></li>
+       <li><a href="#">{% trans "Manual measurements" %}</a></li>
+       <li><a href="{% url 'meetnet:upload_files' object.id %}">{% trans "Upload files" %}</a></li>
+   	 {% endif %}
+       <li><a href="#" data-toggle="modal" data-target="#downloadModal">{% trans "Download files" %}</a></li>
+     </ul>
+   </li>
+   <li class="dropdown">
+     <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-lg fa-user-circle blue" aria-hidden="true"></i></a>
+     <ul class="dropdown-menu">
+       <li><a href="{% url 'auth_logout' %}">{% trans "Log out" %}</a></li>
+       <li><a href="{% url 'auth_password_change' %}">{% trans "Change password" %}</a></li>
+     </ul>
+   </li>
+  {% else %}
+	<li><a href="{% url 'auth_login' %}"><i class="fa fa-lg fa-user-circle blue" aria-hidden="true"></i></a></li>
+  {% endif %}
+</ul>
+{% endblock navbar-auth %}
+
+{% block footer %}
+<div class="modal fade" id="downloadModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">{% trans "Download files" %}</h4>
+      </div>
+      <div class="modal-body">
+      	<p>
+      	{% trans "Dear" %} {{user.first_name|default:user.username}},
+      	</p>
+		<p>
+		{% with user.email as email %}
+		{% blocktrans %}
+		Click CSV or NITG to dowload all timeseries from the monitoring network {{object}}.<br>
+		We will send an email with a download link to {{email}} when the files are ready for download.
+		{% endblocktrans %}
+		{% endwith %}
+		</p>
+      </div>
+      <div class="modal-footer">
+		<a href="{% url 'meetnet:email-network' object.id %}?{{request.GET.urlencode}}" class="btn btn-default" data-dismiss=" modal">CSV</a>
+		<a href="{% url 'meetnet:email-network-nitg' object.id %}?{{request.GET.urlencode}}" class="btn btn-default" data-dismiss=" modal">NITG</a>
+        <button type="button" class="btn btn-primary" data-dismiss="modal">{% trans "Cancel" %}</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock footer %}

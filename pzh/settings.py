@@ -21,6 +21,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['.acaciadata.com','localhost']
 
+# for debug toolbar
+INTERNAL_IPS = '127.0.0.1'
+
 SITE_ID = 1
 
 # Application definition
@@ -36,13 +39,14 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'django.contrib.gis',
+    'debug_toolbar',
     'bootstrap3',
-    'acacia',
     'pzh',
+    'acacia',
     'acacia.ahn',
     'acacia.data',
-    'acacia.validation',
     'acacia.meetnet',
+    'acacia.validation',
     'acacia.data.knmi',
     'registration',
     'django_redis',
@@ -51,6 +55,7 @@ INSTALLED_APPS = (
 MIDDLEWARE_CLASSES = (
 #    'django.middleware.cache.UpdateCacheMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',

@@ -1,141 +1,209 @@
-{% extends 'bootbase.html' %}
-{% block title %}Grondwaterput {{object.nitg}} {% endblock title %}
+{% extends 'base.html' %}
+{% load i18n %} 
+{% block title %}Waarnemingsput {{object.name}} {% endblock title %} 
 {% block breadcrumbs %}
 <ol class="breadcrumb">
-  <li><a href="/">Home</a></li>
+	<li><a href="/">{% trans 'Home' %}</a></li>
 </ol>
-{% endblock breadcrumbs %}
-{% block brandname %}<div class="navbar-brand"><img style="margin-top: -7px;max-width: 100px;" src="/media/{{object.network.logo}}"/></div>{% endblock %}
+{% endblock breadcrumbs %} 
+{% block brandname %}
+<div class="navbar-brand">
+	<a href="{{object.network.homepage}}"><img src="/media/{{object.network.logo}}"/></a>
+	{% trans "Monitoring network" %} {{object.network.name}}
+</div>
+{% endblock %}
 {% block extrastyle %}
 <style>
-html, body {height: 100%;margin:0;padding:0;}
+html, body {
+	height: 100%;
+	margin: 0;
+	padding: 0;
+}
+
+.navbar-brand a img {
+	margin-top: -7px;
+	max-height: 32px;
+}
+
 a img {
 	float: left;
 	height: 474px;
 	padding-right: 8px;
 }
+
+.grafiek img {
+	width: 90%;
+	height: auto;
+	margin-left: 5%;
+	margin-right: 5%;
+}
+
 .log {
-	float:right;
+	float: left;
 	padding-left: 0;
 	height: auto;
 	width: auto;
 	max-width: 400px;
+	padding-bottom:8px;
 }
-/* .grafiek { */
-/* 	width: 100%; */
-/* 	height: 30%; */
-/* } */
-/* .grafiek img { */
-/* 	width: 100%; */
-/* 	height: 100%; */
-/* } */
 
 .foto {
-	max-width: 400px;
-	height: auto;
+	padding-bottom:8px;
 }
 
 </style>
 {% endblock %}
 {% block content %}
 <div id="content">
-<div class="container-fluid">
-<h4>Grondwaterput {{object.nitg|default:object.name}}</h4>
-<table class="table table-striped">
-<tr>
-	<td class="col-md-2">NITG code</td>
-	<td class="col-md-10">{{object.nitg|default:'<i>geen</i>'}}</td>
-	{% if object.log %}
-	<td rowspan="10"><a href="/media/{{object.log}}"><img class="log" src="/media/{{object.log}}"/></a></td>
-	{% endif %}
-</tr>
-<tr><td class="col-md-2">OLGA code</td><td>{{object.name|default:'<i>geen</i>'}}</td></tr>
-<!-- <tr><td>BRO id</td><td>{{object.bro|default:'<i>onbekend</i>'}}</td></tr> -->
-{% if object.straat %}<tr><td>Adres</td><td>{{object.straat}} {{object.huisnummer}}</td></tr>{% endif %}
-{% if object.plaats %}<tr><td>Plaats</td><td>{{object.postcode}} {{object.plaats}}</td></tr>{% endif %}
-<tr><td>Coördinaten</div></td><td>({{object.RD.x|floatformat:2}}&nbsp;{{object.RD.y|floatformat:2}})</td></tr>
-<!-- {% if object.date %}<tr><td>Constructiedatum</div></td><td>{{object.date}}</td></tr>{% endif %} -->
-<tr><td>Maaiveld</div></td><td>{%if object.maaiveld %}{{object.maaiveld|floatformat:2}} m NAP{%else%}<i>onbekend</i>{%endif%}
-{% if object.ahn %} (AHN: {{object.ahn|floatformat:2}} m NAP) {% endif %}
-</td></tr>
-
-<tr><td>Filters</td><td>{{object.num_filters}}</td></tr>
-<tr><td>Laatste uitleesronde</td><td>{{object.last_measurement_date|default:'<i>onbekend</i>'}}</td></tr>
-<tr>
-<td>{%for f in object.photo_set.all %}<a href="/media/{{f.photo.name}}"><img class="foto" src="/media/{{f.photo.name}}"/></a>{%endfor%}</td>
-<td>
-{% if 1 %}
-<div class="grafiek">
-	<a href="{% url 'meetnet:chart-detail' object.id %}" target="_blank">
-		<img src="{{chart}}" alt='grafiek' title='Klik voor interactieve grafiek in aparte tab'/>
-	</a>
-</div>
-{% endif %}
-<table class="table table-bordered table-striped">
-<thead>
-<tr>
-	<th rowspan="2">Filter</th>
-	<th colspan="2"><div class = "text-center">Filterstelling (m tov maaiveld)</div></th>
-	<th colspan="5"><div class = "text-center">Datalogger</div></th>
-	<th colspan="4"><div class = "text-center">Standen (m tov NAP)</div></th>
-</tr>
-<tr>
-	<th title="Bovenkant filter in m tov maaiveld">Bovenkant</th>
-	<th title="Onderkant filter in m tov maaiveld">Onderkant</th>
-	<th title="Serienummer van de datalogger">Serienr</th>
-	<th title="Ophangpunt in m tov NAP">Ophangpunt<br/>(m tov NAP)</th>
-	<th title="Kabellengte in m">Kabellengte<br/>(m)</th>
-	<th title="Startdatum meetreeks">Start</th>
-	<th title="Stopdatum meetreeks">Stop</th>
-	<th title="Aantal metingen">Aantal</th>
-	<th title="10-percentiel">10%</th>
-	<th title="50-percentiel (mediaan)">50%</th>
-	<th title="90-percentiel">90%</th>
-</tr>
-</thead>
-<tbody>
-    {% for s in object.screen_set.all %}
-	<tr>
-		<td>{{s.nr}}</td>
-		<td>{{s.top|floatformat:2|default:'onbekend'}}</td>
-		<td>{{s.bottom|floatformat:2|default:'onbekend'}}</td>
-		{% for pos in s.loggerpos_set.all %}
-			{% if forloop.counter > 1 %}
-				</tr>
-				<td>{{s.nr}}</td>
-				<td>{{s.top|floatformat:2|default:'onbekend'}}</td>
-				<td>{{s.bottom|floatformat:2|default:'onbekend'}}</td>
-			{% endif %}			
-			<td>{{pos.logger|default:''}}</td>
-			<td>{{pos.refpnt|floatformat:2|default:'onbekend'}}</td>
-			<td>{{pos.depth|floatformat:2|default:'onbekend'}}</td>
-			<td>{{pos.start_date|date:'d M Y'}}</td>
-			<td>{{pos.end_date|date:'d M Y'}}</td>
-    		{% with pos.stats as stats %}
-				<td>{{stats.count|floatformat:0|default:''}}</td>
-				<td>{{stats.p10|floatformat:3|default:''}}</td>
-				<td>{{stats.p50|floatformat:3|default:''}}</td>
-				<td>{{stats.p90|floatformat:3|default:''}}</td>
-			{% endwith %}
-	</tr>
-		{% empty %}
-			<td>(geen)</td>
-			<td></td>
-			<td></td>
-			<td></td>
-			<td></td>
-			<td>0</td>
-			<td></td>
-			<td></td>
-			<td></td>
-		{% endfor %}
+	<div class="container-fluid">
+		<h4>Waarnemingsput {{object.name}}</h4>
+		<div class="row row-fluid">
+			<div class="col col-md-8">
+				<div class="row">
+					<div class="col">
+						<table class="table table-striped">
+							<thead></thead>
+							<tbody>
+								<tr>
+									<td>NITG code</td>
+									<td>{{object.nitg|default:'onbekend'}}</td>
+								</tr>
+								<tr>
+									<td>Omschrijving</td>
+									<td>{{object.description|safe}}</td>
+								</tr>
+								{% if object.straat %}
+								<tr>
+									<td>Adres</td>
+									<td>{{object.full_address}}</td>
+								</tr>
+								{% endif %}
+								<tr>
+									<td>Coördinaten</td>
+									<td>({{object.RD.x|floatformat:2}}&nbsp;{{object.RD.y|floatformat:2}})</td>
+								</tr>
+								{% if object.date %}
+								<tr>
+									<td>Constructiedatum</td>
+									<td>{{object.date}}</td>
+								</tr>
+								{% endif %}
+								<tr>
+									<td>Maaiveld</td>
+									<td>{%if object.maaiveld %}{{object.maaiveld|floatformat:2}} m NAP{%else%}<i>onbekend</i>{%endif%} {% if object.ahn %} (AHN: {{object.ahn|floatformat:2}} m NAP) {% endif %}</td>
+								</tr>
+								<tr>
+									<td>Filters</td>
+									<td>{{object.num_filters}}</td>
+								</tr>
+								{%with object.last_measurement as last %}
+								<tr>
+									<td>Laatste meting</td>
+									<td>{% if last %}{{last.value|floatformat:2}}m ({{last.date}}){%else %}<i>onbekend</i>{% endif %}</td>
+								</tr>
+								{% endwith %}
+							</tbody>
+						</table>			
+					</div>
+				</div>
+				<div class="row">
+					<div class="col">
+						<div class="grafiek">
+							<a href="{% url 'meetnet:chart-detail' object.id %}" target="_blank"><img src="{{chart}}" alt='grafiek' title='Klik voor interactieve grafiek in aparte tab' /></a>
+						</div>
+					</div> 
+				</div>
+				<div class="row">
+					<div class="col">
+					<table class="table table-bordered table-striped">
+						<thead>
+							<tr>
+								<th rowspan="2">Filter</th>
+								<th colspan="2"><div class="text-center">Filterstelling
+										(m tov maaiveld)</div></th>
+								<th colspan="3"><div class="text-center">Datalogger</div></th>
+								<th colspan="2"><div class="text-center">Periode</div></th>
+								<th colspan="4"><div class="text-center">Standen (m tov
+										NAP)</div></th>
+							</tr>
+							<tr>
+								<th title="Bovenkant filter in m tov maaiveld">Bovenkant</th>
+								<th title="Onderkant filter in m tov maaiveld">Onderkant</th>
+								<th title="Serienummer van de datalogger">Serienr</th>
+								<th title="Ophangpunt in m tov NAP">Ophangpunt<br />(m tov
+									NAP)
+								</th>
+								<th title="Kabellengte in m">Kabellengte<br />(m)
+								</th>
+								<th title="Startdatum meetreeks">Start</th>
+								<th title="Stopdatum meetreeks">Stop</th>
+								<th title="Aantal metingen">Aantal</th>
+								<th title="10-percentiel">10%</th>
+								<th title="50-percentiel (mediaan)">50%</th>
+								<th title="90-percentiel">90%</th>
+							</tr>
+						</thead>
+						<tbody>
+						    {% for s in object.screen_set.all %}
+								{% if s.loggerpos_set.count %}
+									<tr>
+									<td>{{s.nr}}</td>
+									<td>{{s.top|floatformat:2|default:'onbekend'}}</td>
+									<td>{{s.bottom|floatformat:2|default:'onbekend'}}</td>
+									{% for pos in s.loggerpos_set.all %}
+										{% if forloop.counter > 1 %}
+											</tr>
+											<td>{{s.nr}}</td>
+											<td>{{s.top|floatformat:2|default:'onbekend'}}</td>
+											<td>{{s.bottom|floatformat:2|default:'onbekend'}}</td>
+										{% endif %}			
+										<td>{{pos.logger|default:''}}</td>
+										<td>{{pos.refpnt|floatformat:2|default:'onbekend'}}</td>
+										<td>{{pos.depth|floatformat:2|default:'onbekend'}}</td>
+										<td>{{pos.start_date|date:'d M Y'}}</td>
+										<td>{{pos.end_date|date:'d M Y'}}</td>
+							    		{% with pos.stats as stats %}
+											<td>{{stats.count|floatformat:0|default:''}}</td>
+											<td>{{stats.p10|floatformat:3|default:''}}</td>
+											<td>{{stats.p50|floatformat:3|default:''}}</td>
+											<td>{{stats.p90|floatformat:3|default:''}}</td>
+										{% endwith %}
+										</tr>
+									{% endfor %}
+								{% endif %}
+							{% if s.loggerpos_set.count != 1 %}
+							<tr>
+								<td>{{s.nr}}</td>
+								<td>{{s.top|floatformat:2|default:'onbekend'}}</td>
+								<td>{{s.bottom|floatformat:2|default:'onbekend'}}</td>
+								<td colspan="3">alle</td>
+								<td>{{s.start|date:'d M Y'}}</td>
+								<td>{{s.stop|date:'d M Y'}}</td>
+						   		{% with s.stats as stats %}
+									<td>{{stats.count|floatformat:0|default:''}}</td>
+									<td>{{stats.p10|floatformat:3|default:''}}</td>
+									<td>{{stats.p50|floatformat:3|default:''}}</td>
+									<td>{{stats.p90|floatformat:3|default:''}}</td>
+								{% endwith %}
+							</tr>
+							{% endif %}	
+						    {% endfor %} 
+						</tbody>
 		
-    {% endfor %} 
-</tbody>
-</table>
-</td>
-</tr>
-</table>
-</div>
+					</table>
+				</div>
+			</div>
+			</div>
+			<div class="col col-md-4">
+				{% if object.log %}
+					<a href="/media/{{object.log}}"><img class="log" src="/media/{{object.log}}" /></a>
+				{% endif %}
+				{%for f in object.photo_set.all %}
+					<a href="/media/{{f.photo.name}}"><img class="foto" src="/media/{{f.photo.name}}" /></a>
+				{%endfor%}
+			</div>
+		</div>	
+	</div>
 </div>
 {% endblock content %}
+				

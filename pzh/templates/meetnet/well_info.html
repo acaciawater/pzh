@@ -1,0 +1,34 @@
+<style>
+#content {
+  width: 400px;
+  overflow: hidden;
+}
+td, th {
+  valign: top;
+  padding: 0 4px 0 0;
+}
+td a img {
+	padding: 0 8px 0 0;
+	float: left;
+	height: 100px;
+}
+</style>
+<div id="content">
+<div class="container-fluid">
+<a href="{% url 'meetnet:well-detail' object.id %}" ><h4>Waarnemingsput {{ object.name }}</h4></a>
+<table class="table table-condensed">
+<tr><td class="col-md-3">Adres</div></td><td class="col-md-9">{{object.full_address}}</td></tr>
+{% with object.last_measurement as last %}
+{% if last %}
+<tr><td>Laatste meting</td><td>{{last.value|floatformat:2}}m op {{last.date}}</td></tr>
+{%endif%}
+{% endwith %}
+<tr></tr>
+{% if object.has_data %}
+<tr><td colspan="2">
+	<a href="{% url 'meetnet:chart-detail' object.id %}?stats=1" target="_blank"><img width="100%" src="{{object.chart.url}}"></a>
+</td></tr>
+{% endif %}
+</table>
+</div>
+</div>

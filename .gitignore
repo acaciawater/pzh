@@ -2,3 +2,9 @@
 /media/
 /static/
 /ahn.json
+/charts/
+/export/
+*.pyc
+*.mo
+*.gz
+*~
