@@ -18,7 +18,10 @@ class Command(BaseCommand):
             if aantal:
                 mloc = series.meetlocatie()
                 s = mloc.screen_set.first()
-                print ','.join([str(x) for x in [s.well.name, s.well.nitg, s.nr, unicode(s), aantal]])
+                if s is None:
+                    print '#'+str(series), 'has no screen attached'
+                else:
+                    print ','.join([str(x) for x in [s.well.name, s.well.nitg, s.nr, unicode(s), aantal]])
 #         for s in Screen.objects.order_by('well__name', 'nr'):
 #             series = s.mloc.series_set.filter(name__endswith='HAND').first()
 #             aantal = series.aantal() if series else 0
