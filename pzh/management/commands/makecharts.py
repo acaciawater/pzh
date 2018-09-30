@@ -44,8 +44,8 @@ class Command(BaseCommand):
         begin = options.get('begin',2013)
         end = options.get('end',2017)
         tz = pytz.timezone('CET')
-        start=datetime(int(begin),1,1,tzinfo=tz)
-        stop=datetime(int(end),12,31,tzinfo=tz)
+        start=datetime.datetime(int(begin),1,1,tzinfo=tz)
+        stop=datetime.datetime(int(end),12,31,tzinfo=tz)
         if not os.path.exists(folder):
             os.makedirs(folder)
         for w in Well.objects.all():
