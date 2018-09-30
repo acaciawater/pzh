@@ -41,11 +41,11 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         folder = options.get('dest')
         noscreen = options.get('noscreen')
-        begin = options.get('begin',2013)
-        end = options.get('end',2017)
+        begin = options.get('begin')
+        end = options.get('end')
         tz = pytz.timezone('CET')
-        start=datetime.datetime(int(begin),1,1,tzinfo=tz)
-        stop=datetime.datetime(int(end),12,31,tzinfo=tz)
+        start=datetime.datetime(int(begin),1,1,tzinfo=tz) if begin else None
+        stop=datetime.datetime(int(end),12,31,tzinfo=tz) if end else None
         if not os.path.exists(folder):
             os.makedirs(folder)
         for w in Well.objects.all():
