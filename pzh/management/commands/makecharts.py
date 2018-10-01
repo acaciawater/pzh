@@ -56,7 +56,7 @@ class Command(BaseCommand):
         stop=datetime.datetime(int(end),12,31,tzinfo=tz) if end else None
         if not os.path.exists(folder):
             os.makedirs(folder)
-        queryset = [get_object_or_404(Well,pk=pk)] if id else Well.objects.all()
+        queryset = [get_object_or_404(Well,pk=pk)] if pk else Well.objects.all()
         for w in queryset:
             data = chart_for_well(w,start=start,stop=stop)
             filename = os.path.join(folder,slugify(unicode(w)) + '.png')
