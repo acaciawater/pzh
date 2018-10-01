@@ -10,6 +10,7 @@ import os
 from acacia.data.util import slugify
 import pytz
 import datetime
+from django.shortcuts import get_object_or_404
 
 class Command(BaseCommand):
     help = 'maak grafiekjes'
@@ -25,6 +26,12 @@ class Command(BaseCommand):
                 dest = 'noscreen',
                 default = False,
                 help = 'ignore screens')
+
+        parser.add_argument('-w', '--well',
+                action='store',
+                dest = 'well',
+                default = False,
+                help = 'id of well to make charts for')
 
         parser.add_argument('-b', '--begin',
                 action='store',
@@ -44,11 +51,13 @@ class Command(BaseCommand):
         begin = options.get('begin')
         end = options.get('end')
         tz = pytz.timezone('CET')
+        pk = options.get('well')
         start=datetime.datetime(int(begin),1,1,tzinfo=tz) if begin else None
         stop=datetime.datetime(int(end),12,31,tzinfo=tz) if end else None
         if not os.path.exists(folder):
             os.makedirs(folder)
-        for w in Well.objects.all():
+        queryset = [get_object_or_404(Well,pk=pk)] if id else Well.objects.all()
+        for w in queryset:
             data = chart_for_well(w,start=start,stop=stop)
             filename = os.path.join(folder,slugify(unicode(w)) + '.png')
             print filename
