@@ -36,13 +36,13 @@ class Command(BaseCommand):
         parser.add_argument('-b', '--begin',
                 action='store',
                 dest = 'begin',
-                default = False,
+                default = None,
                 help = 'first year')
 
         parser.add_argument('-e', '--end',
                 action='store',
                 dest = 'end',
-                default = False,
+                default = None,
                 help = 'last year')
                         
     def handle(self, *args, **options):
