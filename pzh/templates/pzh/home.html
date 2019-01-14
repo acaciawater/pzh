@@ -4,7 +4,7 @@
 {% block title %}{% trans "Monitoring network" %} {{object}} {% endblock %}
 {% block style %}
 {{ block.super }}
-<link rel="stylesheet" href="//unpkg.com/leaflet@1.0.3/dist/leaflet.css"/>
+<link rel="stylesheet" href="//unpkg.com/leaflet@1.4.0/dist/leaflet.css"/>
 <link rel="stylesheet" href="//unpkg.com/leaflet.markercluster@1.0.5/dist/MarkerCluster.css"/>
 <link rel="stylesheet" href="//unpkg.com/leaflet.markercluster@1.0.5/dist/MarkerCluster.Default.css"/>
 <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
@@ -15,7 +15,7 @@
 {% block script %}
 {{ block.super }}
 <script type="text/javascript" src="//maps.googleapis.com/maps/api/js?key={{api_key}}" async defer></script>
-<script type="text/javascript" src="//unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
+<script type="text/javascript" src="//unpkg.com/leaflet@1.4.0/dist/leaflet.js"></script>
 <script type="text/javascript" src="//unpkg.com/leaflet.gridlayer.googlemutant@latest/Leaflet.GoogleMutant.js"></script>
 <script type="text/javascript" src="//unpkg.com/leaflet.markercluster@1.0.5/dist/leaflet.markercluster.js"></script>
 <script type="text/javascript" src="//unpkg.com/esri-leaflet@2.1.1/dist/esri-leaflet.js"></script>
