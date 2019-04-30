@@ -10,13 +10,13 @@ import pytz
 
 class Command(BaseCommand):
     args = ''
-    help = 'check for overlapping mon files'
+    help = 'check for overlapping mon files in datalogger installations'
         
     def handle(self, *args, **options):
         CET=pytz.timezone('Etc/GMT-1')
         print 'well,screen,monfile,diver,start_date,start_time,stop_date,stop_time,count,overlap'
         for screen in Screen.objects.all():
-            files = MonFile.objects.filter(datasource__meetlocatie=screen.mloc)
+            files = MonFile.objects.filter(source__screen=screen)
             for mon in files.order_by('start_date'):
                 others = files.exclude(pk=mon.pk)
                 overlap = others.filter(start_date__lt=mon.end_date, end_date__gt=mon.start_date)
