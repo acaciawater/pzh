@@ -47,7 +47,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         tolerance = timedelta(hours=2)
-        print 'screen,hand.date,hand.value,logger.date,logger.value'
+        print 'screen,monfile,logger,hand.date,hand.value,logger.date,logger.value'
         for screen in Screen.objects.all():
             series = screen.find_series()
             peilingen = screen.mloc.series_set.instance_of(ManualSeries).filter(name__endswith='HAND').first()
@@ -55,6 +55,6 @@ class Command(BaseCommand):
                 for mon in screen.get_monfiles():
                     start=self.process(peilingen, series, mon.start_date, tolerance)
                     stop=self.process(peilingen, series, mon.end_date, tolerance)
-                    print ','.join([mon.name,self.toString(start)])
-                    print ','.join([mon.name,self.toString(stop)])
+                    print ','.join([screen,mon.name,mon.serial_number,self.toString(start)])
+                    print ','.join([screen,mon.name,mon.serial_number,self.toString(stop)])
                     
