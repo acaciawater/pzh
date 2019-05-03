@@ -35,7 +35,8 @@ class Command(BaseCommand):
             return None
                 
     def process(self, peilingen, series, date, tolerance):
-        levels = series.datapoints.filter(date__range=(date-tolerance, date+tolerance))
+        data = series.validation.validpoint_set if series.validated else series.datapoints
+        levels = data.filter(date__range=(date-tolerance, date+tolerance))
         level = self.find_nearest(levels, date) if levels else None
         points = peilingen.datapoints.filter(date__range=(date-tolerance, date+tolerance))
         peiling = self.find_nearest(points, date) if points else None 
