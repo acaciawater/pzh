@@ -55,6 +55,6 @@ class Command(BaseCommand):
                 for mon in screen.get_monfiles():
                     start=self.process(peilingen, series, mon.start_date, tolerance)
                     stop=self.process(peilingen, series, mon.end_date, tolerance)
-                    print ','.join([screen,mon.name,mon.serial_number,self.toString(start)])
-                    print ','.join([screen,mon.name,mon.serial_number,self.toString(stop)])
+                    print ','.join([str(screen),mon.name,mon.serial_number,self.toString(start)])
+                    print ','.join([str(screen),mon.name,mon.serial_number,self.toString(stop)])
                     
