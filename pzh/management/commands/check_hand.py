@@ -33,13 +33,43 @@ class Command(BaseCommand):
             return p2
         else:
             return None
+
+    def interpolate(self, queryset, date):
+        points = queryset.order_by('date')
+        p1 = points.filter(date__lte=date).last()
+        p2 = points.filter(date__gte=date).first()
+        if p1 and p2:
+            # two points: interpolate
+            dt = (p2.date - p1.date).total_seconds()
+            if dt:
+                dz = p2.value - p1.value
+                value = p1.value + (date - p1.date).total_seconds() * dz / dt
+            else:
+                value = p1.value
+            return DataPoint(date=date,value=value)
+        elif p1:
+            return p1
+        elif p2:
+            return p2
+        else:
+            return None
                 
-    def process(self, peilingen, series, date, tolerance):
+    def process_nearest(self, peilingen, series, date, tolerance):
         loggerdata = series.validation.validpoint_set if series.validated else series.datapoints
         levels = loggerdata.filter(date__range=(date-tolerance, date+tolerance),value__isnull=False)
         level = self.find_nearest(levels, date) if levels else None
         points = peilingen.datapoints.filter(date__range=(date-tolerance, date+tolerance))
         peiling = self.find_nearest(points, date) if points else None 
+        return (peiling,level) 
+
+    def process_interpol(self, peilingen, series, date, tolerance):
+        points = peilingen.datapoints.filter(date__range=(date-tolerance, date+tolerance))
+        peiling = self.find_nearest(points, date) if points else None 
+        if peiling:
+            date = peiling.date
+        loggerdata = series.validation.validpoint_set if series.validated else series.datapoints
+        levels = loggerdata.filter(date__range=(date-tolerance, date+tolerance),value__isnull=False)
+        level = self.interpolate(levels, date) if levels else None
         return (peiling,level) 
 
     def _toString(self,dp):
@@ -49,14 +79,17 @@ class Command(BaseCommand):
         return ','.join([self._toString(p) for p in dp])
 
     def handle(self, *args, **options):
-        tolerance = timedelta(hours=2)
-        print 'screen,monfile,logger,start.hand.date,start.hand.value,start.logger.date,start.logger.value,stop.hand.date,stop.hand.value,stop.logger.date,stop.logger.value'
+        tolerance = timedelta(hours=4)
+        print 'screen,monfile,logger,start.hand.date,start.hand.value,start.logger.date,start.logger.value,stop.hand.date,stop.hand.value,stop.logger.date,stop.logger.value,start.difference,stop.difference,change'
         for screen in Screen.objects.all():
             series = screen.find_series()
             peilingen = screen.mloc.series_set.instance_of(ManualSeries).filter(name__endswith='HAND').first()
             if peilingen:
                 for mon in screen.get_monfiles():
-                    start=self.process(peilingen, series, mon.start_date, tolerance)
-                    stop=self.process(peilingen, series, mon.end_date, tolerance)
-                    print ','.join([str(screen),mon.name,mon.serial_number,self.toString(start),self.toString(stop)])
+                    start=self.process_interpol(peilingen, series, mon.start_date, tolerance)
+                    stop=self.process_interpol(peilingen, series, mon.end_date, tolerance)
+                    dif1 = start[1].value - start[0].value if all(start) else None
+                    dif2 = stop[1].value - stop[0].value if all(stop) else None
+                    change = abs(dif2-dif1) if dif1 and dif2 else None
+                    print ','.join([str(screen),mon.name,mon.serial_number,self.toString(start),self.toString(stop),str(dif1),str(dif2),str(change)])
                     
