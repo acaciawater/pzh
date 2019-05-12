@@ -52,7 +52,7 @@ class Command(BaseCommand):
                             print 'Reference point for screen %s not available' % screen
                             continue
                         nap = screen.refpnt - depth
-                        date = datetime.datetime.strptime(datumtijd,'%d/%m/%Y %H:%M')
+                        date = datetime.datetime.strptime(datumtijd,'%Y-%m-%d %H:%M')
                         date = CET.localize(date)
                         series_name = '%s HAND' % mloc.name
                         series,created = ManualSeries.objects.get_or_create(name=series_name,mlocatie=mloc,defaults={'description':'Handpeiling', 'timezone':'Etc/GMT-1', 'unit':'m NAP', 'type':'scatter', 'user':user})
