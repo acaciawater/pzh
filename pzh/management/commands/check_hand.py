@@ -91,5 +91,5 @@ class Command(BaseCommand):
                     dif1 = start[1].value - start[0].value if all(start) else None
                     dif2 = stop[1].value - stop[0].value if all(stop) else None
                     change = abs(dif2-dif1) if dif1 and dif2 else None
-                    print ','.join([str(screen),mon.id,mon.name,mon.serial_number,self.toString(start),self.toString(stop),str(dif1),str(dif2),str(change)])
+                    print ','.join([str(screen),str(mon.id),mon.name,mon.serial_number,self.toString(start),self.toString(stop),str(dif1),str(dif2),str(change)])
                     
