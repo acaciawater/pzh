@@ -32,12 +32,12 @@ class Command(BaseCommand):
             reader = csv.DictReader(f, delimiter=',')
             for row in reader:
                 if row['correct?'] == 'TRUE' and row['KRW'] != '#N/A':
-                    filename = row['monfile']
-                    print filename
+                    monid = row['monid']
                     try:
-                        monfile = MonFile.objects.get(name__iexact=filename)
+                        monfile = MonFile.objects.get(pk=monid)
+                        print monfile.name
                     except ObjectDoesNotExist:
-                        print 'Monfile not found'
+                        print 'Monfile not found with id='+monid
                         continue
                     
                     corrected = moncorrect(monfile, tolerance, tz)
