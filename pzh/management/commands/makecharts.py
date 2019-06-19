@@ -44,9 +44,16 @@ class Command(BaseCommand):
                 dest = 'end',
                 default = None,
                 help = 'last year')
+
+        parser.add_argument('-o', '--overwrite',
+                action='store_true',
+                dest = 'overwrite',
+                default = False,
+                help = 'overwrite existing charts')
                         
     def handle(self, *args, **options):
         folder = options.get('dest')
+        overwrite = options.get('overwrite')
         noscreen = options.get('noscreen')
         begin = options.get('begin')
         end = options.get('end')
@@ -58,15 +65,17 @@ class Command(BaseCommand):
             os.makedirs(folder)
         queryset = [get_object_or_404(Well,pk=pk)] if pk else Well.objects.all()
         for w in queryset:
-            data = chart_for_well(w,start=start,stop=stop)
             filename = os.path.join(folder,slugify(unicode(w)) + '.png')
-            print filename
-            with open(filename,'wb') as png:
-                png.write(data)
+            if overwrite or not os.path.exists(filename):
+                print filename
+                data = chart_for_well(w,start=start,stop=stop)
+                with open(filename,'wb') as png:
+                    png.write(data)
             if not noscreen:
                 for s in w.screen_set.all():
-                    data = chart_for_screen(s,start=start,stop=stop)
                     filename = os.path.join(folder,slugify(unicode(s)) + '.png')
-                    print filename
-                    with open(filename,'wb') as png:
-                        png.write(data)
+                    if overwrite or not os.path.exists(filename):
+                        print filename
+                        data = chart_for_screen(s,start=start,stop=stop)
+                        with open(filename,'wb') as png:
+                            png.write(data)
