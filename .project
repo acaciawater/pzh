@@ -3,7 +3,7 @@
 	<name>pzh</name>
 	<comment></comment>
 	<projects>
-		<project>acaciadata</project>
+		<project>acacia</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
