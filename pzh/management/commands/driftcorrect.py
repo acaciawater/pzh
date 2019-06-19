@@ -41,8 +41,8 @@ class Command(BaseCommand):
                         continue
                     
                     corrected = moncorrect(monfile, tolerance, tz)
-                    if corrected:
-                        screen = monfile.source.screen
-                        if screen.logger_levels != corrected:
-                            screen.logger_levels = corrected
-                            screen.save()
+#                     if corrected:
+#                         screen = monfile.source.screen
+#                         if screen.logger_levels != corrected:
+#                             screen.logger_levels = corrected
+#                             screen.save()
