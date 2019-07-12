@@ -76,6 +76,6 @@ class Command(BaseCommand):
                     filename = os.path.join(folder,slugify(unicode(s)) + '.png')
                     if overwrite or not os.path.exists(filename):
                         print filename
-                        data = chart_for_screen(s,start=start,stop=stop)
+                        data = chart_for_screen(s,start=start,stop=stop,raw=False,corrected=True)
                         with open(filename,'wb') as png:
                             png.write(data)
