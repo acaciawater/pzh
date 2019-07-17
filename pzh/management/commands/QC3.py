@@ -40,57 +40,60 @@ class Command(BaseCommand):
                     logger.info(unicode(screen))
                     for pos in screen.loggerpos_set.order_by('start_date'):
                         for sf in pos.monfile_set.order_by('start_date'):
-                            fname = os.path.basename(sf.file.name)
-                            df = sf.get_data()
-                            if isinstance(df,dict):
-                                df = df.itervalues().next()
-                            if df is None or df.empty:
-                                logger.warning('File {} skipped: no data'.format(fname))
-                                continue
+                            try:
+                                fname = os.path.basename(sf.file.name)
+                                df = sf.get_data()
+                                if isinstance(df,dict):
+                                    df = df.itervalues().next()
+                                if df is None or df.empty:
+                                    logger.warning('File {} skipped: no data'.format(fname))
+                                    continue
+                                    
+                                data = df['PRESSURE'].dropna().groupby(df.index).last().sort_index()
+                            
+                                dataend = data.index[0]
+                                if dataend < barostart:
+                                    logger.warning('File {} skipped: no air pressure data available before {}'.format(fname,barostart))
+                                    continue
+    
+                                datastart = data.index[0]
+                                if datastart > baroend:
+                                    logger.warning('File {} skipped: no air pressure data available after {}'.format(fname,baroend))
+                                    continue
+    
+                                if datastart < barostart:
+                                    logger.warning('File {} only partly checked: no air pressure data available before {}'.format(fname,barostart))
+    
+                                if dataend > baroend:
+                                    logger.warning('File {} only partly checked: no air pressure data available after {}'.format(fname,baroend))
+                    
+                                adata, abaro = data.align(baro)
+                                abaro = abaro.interpolate(method='time')
+                                abaro = abaro.reindex(data.index)
+                                abaro[:barostart] = np.NaN
+                                abaro[baroend:] = np.NaN
+                                data = data - abaro
+                    
+                                data.dropna(inplace=True)
                                 
-                            data = df['PRESSURE'].dropna().groupby(df.index).last().sort_index()
-                        
-                            dataend = data.index[0]
-                            if dataend < barostart:
-                                logger.warning('File {} skipped: no air pressure data available before {}'.format(fname,barostart))
-                                continue
-
-                            datastart = data.index[0]
-                            if datastart > baroend:
-                                logger.warning('File {} skipped: no air pressure data available after {}'.format(fname,baroend))
-                                continue
-
-                            if datastart < barostart:
-                                logger.warning('File {} only partly checked: no air pressure data available before {}'.format(fname,barostart))
-
-                            if dataend > baroend:
-                                logger.warning('File {} only partly checked: no air pressure data available after {}'.format(fname,baroend))
-                
-                            adata, abaro = data.align(baro)
-                            abaro = abaro.interpolate(method='time')
-                            abaro = abaro.reindex(data.index)
-                            abaro[:barostart] = np.NaN
-                            abaro[baroend:] = np.NaN
-                            data = data - abaro
-                
-                            data.dropna(inplace=True)
+                                zmaaiveld = screen.well.maaiveld
+                                zsensor = pos.refpnt - pos.depth
+                                ztopbuis = screen.refpnt
+                                zbottombuis = screen.refpnt - screen.depth
+                                zbottomfilter = screen.refpnt - screen.bottom
+                                
+                                level = data / 100.0 + zsensor
+                                
+                                qc3a = level[level < zbottombuis].count()
+                                qc3b = level[level < zbottomfilter].count()
+                                qc3c = level[level < zsensor].count()
+                                qc3d = level[level > zmaaiveld].count()
+                                qc3e = level[level > ztopbuis].count()
+                                 
+                                txt = ','.join(map(str,[screen,fname,sf.start,sf.stop,sf.rows,
+                                                        qc3a, qc3b, qc3c, qc3d, qc3e]))
+                                logger.debug(txt)
+                                csv.write('{}\n'.format(txt))
+                            except:
+                                pass
                             
-                            zmaaiveld = screen.well.maaiveld
-                            zsensor = pos.refpnt - pos.depth
-                            ztopbuis = screen.refpnt
-                            zbottombuis = screen.refpnt - screen.depth
-                            zbottomfilter = screen.refpnt - screen.bottom
-                            
-                            level = data / 100.0 + zsensor
-                            
-                            qc3a = level[level < zbottombuis].count()
-                            qc3b = level[level < zbottomfilter].count()
-                            qc3c = level[level < zsensor].count()
-                            qc3d = level[level > zmaaiveld].count()
-                            qc3e = level[level > ztopbuis].count()
-                             
-                            txt = ','.join(map(str,[screen,fname,sf.start,sf.stop,sf.rows,
-                                                    qc3a, qc3b, qc3c, qc3d, qc3e]))
-                            logger.debug(txt)
-                            csv.write('{}\n'.format(txt))
-            
