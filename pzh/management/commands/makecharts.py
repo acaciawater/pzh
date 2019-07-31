@@ -50,6 +50,13 @@ class Command(BaseCommand):
                 dest = 'overwrite',
                 default = False,
                 help = 'overwrite existing charts')
+
+        parser.add_argument('-f', '--file',
+                action='store',
+                dest = 'fname',
+                default = None,
+                help = 'name of file with well names')
+        
                         
     def handle(self, *args, **options):
         folder = options.get('dest')
@@ -59,11 +66,18 @@ class Command(BaseCommand):
         end = options.get('end')
         tz = pytz.timezone('CET')
         pk = options.get('well')
+        fname = options.get('fname')
+
         start=datetime.datetime(int(begin),1,1,tzinfo=tz) if begin else None
         stop=datetime.datetime(int(end),12,31,tzinfo=tz) if end else None
         if not os.path.exists(folder):
             os.makedirs(folder)
-        queryset = [get_object_or_404(Well,pk=pk)] if pk else Well.objects.all()
+        if fname:
+            with open(fname,'r') as f:
+                names = [name.strip() for name in f.readlines()]
+                queryset = Well.objects.filter(nitg__in=names)
+        else:
+            queryset = [get_object_or_404(Well,pk=pk)] if pk else Well.objects.all()
         for w in queryset:
             filename = os.path.join(folder,slugify(unicode(w)) + '.png')
             if overwrite or not os.path.exists(filename):
