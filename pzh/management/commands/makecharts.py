@@ -99,7 +99,7 @@ class Command(BaseCommand):
             filename = os.path.join(folder,slugify(unicode(w)) + '.png')
             if overwrite or not os.path.exists(filename):
                 print filename
-                data = chart_for_well(w,start=start,stop=stop)
+                data = chart_for_well(w,start=start,stop=stop,corrected=corrected)
                 with open(filename,'wb') as png:
                     png.write(data)
             if not noscreen:
