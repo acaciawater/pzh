@@ -51,6 +51,18 @@ class Command(BaseCommand):
                 default = False,
                 help = 'overwrite existing charts')
 
+        parser.add_argument('-r', '--raw',
+                action='store_true',
+                dest = 'raw',
+                default = False,
+                help = 'include raw data')
+        
+        parser.add_argument('-c', '--corrected',
+                action='store_true',
+                dest = 'corrected',
+                default = False,
+                help = 'include corrected data')
+
         parser.add_argument('-f', '--file',
                 action='store',
                 dest = 'fname',
@@ -67,6 +79,11 @@ class Command(BaseCommand):
         tz = pytz.timezone('CET')
         pk = options.get('well')
         fname = options.get('fname')
+        raw = options.get('raw')
+        corrected = options.get('corrected')
+        if not raw and not corrected:
+            # include at least something..
+            raw = True
 
         start=datetime.datetime(int(begin),1,1,tzinfo=tz) if begin else None
         stop=datetime.datetime(int(end),12,31,tzinfo=tz) if end else None
@@ -90,6 +107,6 @@ class Command(BaseCommand):
                     filename = os.path.join(folder,slugify(unicode(s)) + '.png')
                     if overwrite or not os.path.exists(filename):
                         print filename
-                        data = chart_for_screen(s,start=start,stop=stop,raw=False,corrected=True)
+                        data = chart_for_screen(s,start=start,stop=stop,raw=raw,corrected=corrected)
                         with open(filename,'wb') as png:
                             png.write(data)
