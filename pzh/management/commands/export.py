@@ -16,10 +16,9 @@ class Command(BaseCommand):
     def dump(self, series, name):
         name = slugify(name)
         fname = os.path.join(self.fldr,name) + '.csv'
-        print fname
-#         with open(fname,'w') as f:
-#             text = series.to_csv()
-#             f.write(text)
+        with open(fname,'w') as f:
+            text = series.to_csv()
+            f.write(text)
         
     def handle(self, *args, **options):
         if not os.path.exists(self.fldr):
@@ -30,7 +29,7 @@ class Command(BaseCommand):
                 screens = [line.strip() for line in f]
         for screen in Screen.objects.all():
             name = '%s/%03d' % (screen.well.nitg, screen.nr)
-            if not screen_file or name in screens:
+            if screen_file is None or name in screens:
                 comp = screen.find_series()
                 if comp:
                     self.dump(comp, slugify('%s-comp' % name))
