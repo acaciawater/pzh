@@ -25,8 +25,9 @@ class Command(BaseCommand):
         if not os.path.exists(self.fldr):
             os.makedirs(self.fldr)
         screen_file = options['screens']
-        with open(screen_file,'rt') as f:
-            screens = [line.strip() for line in f]
+        if screen_file:
+            with open(screen_file,'rt') as f:
+                screens = [line.strip() for line in f]
         for screen in Screen.objects.all():
             name = '%s/%03d' % (screen.well.nitg, screen.nr)
             if not screen_file or name in screens:
